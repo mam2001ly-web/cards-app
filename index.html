@@ -1,1 +1,82 @@
-&lt;!DOCTYPE html&gt;<br/>&lt;html lang=&quot;ar&quot; dir=&quot;rtl&quot;&gt;<br/>&lt;head&gt;<br/>    &lt;meta charset=&quot;UTF-8&quot;&gt;<br/>    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;<br/>    &lt;title&gt;إدارة كروت الشبكة&lt;/title&gt;<br/>    &lt;!-- مكتبة Supabase --&gt;<br/>    &lt;script src=&quot;https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2&quot;&gt;&lt;/script&gt;<br/>    &lt;style&gt;<br/>        body { font-family: Tahoma, sans-serif; background: #f4f4f9; margin: 0; padding: 20px; text-align: center; }<br/>        .container { max-width: 400px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }<br/>        input, button { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }<br/>        button { background: #007bff; color: white; border: none; cursor: pointer; font-weight: bold; }<br/>        button:hover { background: #0056b3; }<br/>        .card-item { background: #e9ecef; padding: 10px; margin: 5px 0; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; }<br/>    &lt;/style&gt;<br/>&lt;/head&gt;<br/>&lt;body&gt;<br/><br/>&lt;div class=&quot;container&quot;&gt;<br/>    &lt;h2&gt;إدارة كروت الشبكة&lt;/h2&gt;<br/>    &lt;input type=&quot;text&quot; id=&quot;cardNumber&quot; placeholder=&quot;أدخل رقم الكرت (مثال: 1234-5678)&quot;&gt;<br/>    &lt;button onclick=&quot;addCard()&quot;&gt;إضافة الكرت&lt;/button&gt;<br/>    &lt;hr&gt;<br/>    &lt;h3&gt;الكروت المسجلة&lt;/h3&gt;<br/>    &lt;div id=&quot;cardsList&quot;&gt;جاري التحميل...&lt;/div&gt;<br/>&lt;/div&gt;<br/><br/>&lt;script&gt;<br/>    // إعدادات الاتصال بمشروعك على Supabase<br/>    const supabaseUrl = &#39;https://oamhbeewsexdrayrmeda.supabase.co&#39;<br/>    const supabaseKey = &#39;sb_publishable_Xp4wtYqVz3cVbI2FkZMzRw_HiaawjU2&#39;<br/>    const _supabase = supabase.createClient(supabaseUrl, supabaseKey)<br/><br/>    async function addCard() {<br/>        const cardNum = document.getElementById(&#39;cardNumber&#39;).value;<br/>        if (!cardNum) {<br/>            alert(&#39;الرجاء إدخال رقم الكرت&#39;);<br/>            return;<br/>        }<br/><br/>        const { data, error } = await _supabase<br/>            .from(&#39;cards&#39;)<br/>            .insert([{ card_number: cardNum }]);<br/><br/>        if (error) {<br/>            alert(&#39;خطأ أثناء الحفظ: &#39; + error.message);<br/>        } else {<br/>            alert(&#39;تم إضافة الكرت بنجاح!&#39;);<br/>            document.getElementById(&#39;cardNumber&#39;).value = &#39;&#39;;<br/>            fetchCards();<br/>        }<br/>    }<br/><br/>    async function fetchCards() {<br/>        const { data, error } = await _supabase.from(&#39;cards&#39;).select(&#39;*&#39;).order(&#39;id&#39;, { ascending: false });<br/>        const listDiv = document.getElementById(&#39;cardsList&#39;);<br/>        <br/>        if (error) {<br/>            listDiv.innerHTML = &#39;خطأ في جلب البيانات&#39;;<br/>            return;<br/>        }<br/><br/>        if (data.length === 0) {<br/>            listDiv.innerHTML = &#39;&lt;p&gt;لا توجد كروت مضافة حالياً&lt;/p&gt;&#39;;<br/>            return;<br/>        }<br/><br/>        listDiv.innerHTML = data.map(c =&gt; `<br/>            &lt;div class=&quot;card-item&quot;&gt;<br/>                &lt;span&gt;&lt;b&gt;${c.card_number}&lt;/b&gt;&lt;/span&gt;<br/>                &lt;span style=&quot;color: ${c.status === &#39;active&#39; ? &#39;green&#39; : &#39;red&#39;};&quot;&gt;${c.status}&lt;/span&gt;<br/>            &lt;/div&gt;<br/>        `).join(&#39;&#39;);<br/>    }<br/><br/>    // جلب الكروت عند فتح الصفحة<br/>    fetchCards();<br/>&lt;/script&gt;<br/><br/>&lt;/body&gt;<br/>&lt;/html&gt;<br/>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة كروت الشبكة</title>
+    <!-- مكتبة Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: Tahoma, sans-serif; background: #f4f4f9; margin: 0; padding: 20px; text-align: center; }
+        .container { max-width: 400px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        input, button { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
+        button { background: #007bff; color: white; border: none; cursor: pointer; font-weight: bold; }
+        button:hover { background: #0056b3; }
+        .card-item { background: #e9ecef; padding: 10px; margin: 5px 0; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>إدارة كروت الشبكة</h2>
+    <input type="text" id="cardNumber" placeholder="أدخل رقم الكرت (مثال: 1234-5678)">
+    <button onclick="addCard()">إضافة الكرت</button>
+    <hr>
+    <h3>الكروت المسجلة</h3>
+    <div id="cardsList">جاري التحميل...</div>
+</div>
+
+<script>
+    // إعدادات الاتصال بمشروعك على Supabase
+    const supabaseUrl = 'https://oamhbeewsexdrayrmeda.supabase.co'
+    const supabaseKey = 'sb_publishable_Xp4wtYqVz3cVbI2FkZMzRw_HiaawjU2'
+    const _supabase = supabase.createClient(supabaseUrl, supabaseKey)
+
+    async function addCard() {
+        const cardNum = document.getElementById('cardNumber').value;
+        if (!cardNum) {
+            alert('الرجاء إدخال رقم الكرت');
+            return;
+        }
+
+        const { data, error } = await _supabase
+            .from('cards')
+            .insert([{ card_number: cardNum }]);
+
+        if (error) {
+            alert('خطأ أثناء الحفظ: ' + error.message);
+        } else {
+            alert('تم إضافة الكرت بنجاح!');
+            document.getElementById('cardNumber').value = '';
+            fetchCards();
+        }
+    }
+
+    async function fetchCards() {
+        const { data, error } = await _supabase.from('cards').select('*').order('id', { ascending: false });
+        const listDiv = document.getElementById('cardsList');
+        
+        if (error) {
+            listDiv.innerHTML = 'خطأ في جلب البيانات';
+            return;
+        }
+
+        if (data.length === 0) {
+            listDiv.innerHTML = '<p>لا توجد كروت مضافة حالياً</p>';
+            return;
+        }
+
+        listDiv.innerHTML = data.map(c => `
+            <div class="card-item">
+                <span><b>${c.card_number}</b></span>
+                <span style="color: ${c.status === 'active' ? 'green' : 'red'};">${c.status}</span>
+            </div>
+        `).join('');
+    }
+
+    // جلب الكروت عند فتح الصفحة
+    fetchCards();
+</script>
+
+</body>
+</html>
